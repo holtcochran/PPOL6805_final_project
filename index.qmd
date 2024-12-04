@@ -8,7 +8,7 @@ authors:
     corresponding: true
 df-print: kable
 bibliography: GIS_Manuscript.bib
-title-block-banner: "#E69F0095"
+title-block-banner: "lightblue"
 title-block-banner-color: "black"
 format:
   html:
@@ -39,7 +39,7 @@ To research changes in traffic patterns in Washington, DC, I am using data from 
 
 I first plot the traffic patterns on map to visually examine average traffic in DC by year. I then calculate Moran's I for the traffic of roads for each year of data to assess spatial autocorrelation of traffic. Finally, I run Monte Carlo simulations to assess the statistical significance of the Moran I values. Taken together, these methods show if spatial autocorrelation of traffic exists or has changed over time in the city, as new roads have developed traffic patterns as a result of trends caused by the COVID-19 pandemic. 
 
-```{r echo: false}
+```{r chunk1, echo = FALSE}
 library(tidyverse)
 library(dplyr)
 library(sf)
@@ -59,7 +59,7 @@ library(spatstat)
 library(htmltools)
 
 # set working directory
-setwd("/Users/holtcochran/Documents/Georgetown MS-DSPP/Fall_2024/GIS/Final_Project/")
+#setwd("/Users/holtcochran/Documents/Georgetown MS-DSPP/Fall_2024/GIS/Final_Project/")
 
 
 ######## Import Data ######## 
@@ -76,7 +76,7 @@ dc_traffic_2022 <- st_read("Data/2022_Traffic_Volume.geojson")
 I first plot the traffic data on a map to explore trends in traffic patterns at a high level. Colors of the roads indicate the amount of Average Annual Traffic by road, which darker shades of red indicating areas of higher traffic. The map is displayed by year, allowing for comparison of traffic between years.
 
 #### Figure 1. Average Annual Daily Traffic (AADT) in Washington, DC
-```{r leaflet-map, echo: false}
+```{r leaflet-map, echo = FALSE}
 
 ######## Plot Data Over Time with Leaflet ######## 
 # Preprocess the data for each year (2017-2023)
@@ -149,7 +149,7 @@ leaflet_map
 I then examine the amount of traffic at a more granular level for each year, allowing for comparisons of the percentage of high-traffic routes for each year. Figure 2 displays a histogram of AADT per year breaking down traffic into larger categories for comparison.
 
 #### Figure 2. 
-```{r echo: false}
+```{r chunk2, echo = FALSE}
 # filter data
 dc_traffic_2018_filtered <- dc_traffic_2018 %>%
   select(ROUTEID, FROMDATE, AADT, geometry)
@@ -201,7 +201,7 @@ AADT_Histogram
 
 Next I calculate the Moran's I for the Average Annual Daily Traffic for each road with data for each year from 2018 - 2022. Moran's I statistics are used to quantify spatial correlation and assess clustering of data. I use Moran's I to assess if traffic in DC is spatially auto correlated, and the strength of the clustering of traffic on roads. To reduce computational complexity, I filter to only assess AADT > 50,000 - this only includes roads that have average traffic of more than 50,000 drivers a day. This focuses the analysis on roads with large quantities of drivers and traffic, which is the focus of this research. 
 
-```{r echo: false}
+```{r chunk3, echo = FALSE}
 
 # filter for AADT > 100000
 dc_traffic_2018_50k <- dc_traffic_2018_filtered %>% filter(AADT > 50000)
@@ -287,7 +287,7 @@ moran_comparison <- data.frame(
 Figure 3 displays Moran's I comparison across years. There is peak Moran's I value of 0.84 in 2019, with a clear dip to 0.74 in 2021. 
 
 #### Figure 3. 
-```{r leaflet-map, echo: false}
+```{r chunk4, echo = FALSE}
 morans_time <- ggplot(moran_comparison, aes(x = Year, y = Moran_I)) +
   geom_line() +
   geom_point() +
@@ -300,7 +300,7 @@ morans_time
 
 I then run a Pairwise Correlation Function to assess the 
 
-```{r echo: false}
+```{r chunk5, echo = FALSE}
 library(sf)
 library(spatstat)
 library(ggplot2)
