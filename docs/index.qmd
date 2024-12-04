@@ -39,7 +39,7 @@ To research changes in traffic patterns in Washington, DC, I am using data from 
 
 I first plot the traffic patterns on map to visually examine average traffic in DC by year. I then calculate Moran's I for the traffic of roads for each year of data to assess spatial autocorrelation of traffic. Finally, I run Monte Carlo simulations to assess the statistical significance of the Moran I values. Taken together, these methods show if spatial autocorrelation of traffic exists or has changed over time in the city, as new roads have developed traffic patterns as a result of trends caused by the COVID-19 pandemic. 
 
-```{r chunk1, echo = FALSE}
+```{r chunk1}
 library(tidyverse)
 library(dplyr)
 library(sf)
@@ -58,9 +58,6 @@ library(viridis)
 library(spatstat)
 library(htmltools)
 
-# set working directory
-#setwd("/Users/holtcochran/Documents/Georgetown MS-DSPP/Fall_2024/GIS/Final_Project/")
-
 
 ######## Import Data ######## 
 dc_traffic_2018 <- st_read("Data/2018_Traffic_Volume.geojson")
@@ -71,12 +68,13 @@ dc_traffic_2022 <- st_read("Data/2022_Traffic_Volume.geojson")
 ```
 
 
+
 ## Exploratory Data Analysis (EDA)
 
 I first plot the traffic data on a map to explore trends in traffic patterns at a high level. Colors of the roads indicate the amount of Average Annual Traffic by road, which darker shades of red indicating areas of higher traffic. The map is displayed by year, allowing for comparison of traffic between years.
 
 #### Figure 1. Average Annual Daily Traffic (AADT) in Washington, DC
-```{r leaflet-map, echo = FALSE}
+```{r, leaflet-map, echo = FALSE}
 
 ######## Plot Data Over Time with Leaflet ######## 
 # Preprocess the data for each year (2017-2023)
@@ -90,8 +88,8 @@ for (year in 2018:2022) {
   # Remove Z-dimension and transform to CRS 4326
   dc_traffic <- dc_traffic %>%
     mutate(geometry = st_zm(geometry)) %>%
-    st_transform(crs = 4326) #%>%
-    #mutate(AADT = sqrt(AADT)) 
+    st_transform(crs = 4326) %>%
+    mutate(AADT = sqrt(AADT)) 
   
   dc_traffic_list[[year]] <- dc_traffic
 }
@@ -136,7 +134,7 @@ leaflet_map <- leaflet_map %>%
     position = "bottomleft",   # Position of the legend
     pal = color_scale_custom,   # Color scale to use
     values = range(dc_traffic$AADT, na.rm = TRUE),  # AADT range for the legend
-    title = "AADT",
+    title = "AADT (hundreds)",
     opacity = 1
   )
 
@@ -296,27 +294,12 @@ morans_time <- ggplot(moran_comparison, aes(x = Year, y = Moran_I)) +
 morans_time
 ```
 
-## Pairwise Correlation Function (PCF)
+## Spatial Autoregressive (SAR) Model
 
-I then run a Pairwise Correlation Function to assess the 
+I then a spatial autoregressive (SAR) model to test the statistical significance of the changes in dispersion of the traffic in Washingon, DC. 
 
 ```{r chunk5, echo = FALSE}
-library(sf)
-library(spatstat)
-library(ggplot2)
 
-# Function to extract centroids and pair with AADT values
-extract_centroids_and_marks <- function(sf_data) {
-  centroids <- st_centroid(sf_data)  # Extract centroids (points)
-  coords <- st_coordinates(centroids)  # Get coordinates (x, y)
-  marks <- sf_data$AADT  # AADT values for each observation
-  
-  if (length(marks) != nrow(coords)) {
-    stop("Number of AADT values does not match the number of centroids.")
-  }
-  
-  return(list(coords = coords, marks = marks))
-}
 ```
 
 
@@ -325,4 +308,3 @@ extract_centroids_and_marks <- function(sf_data) {
 
 ## Conclusion
 
-Our evidence indicates that the spatial dynamics of **conflict** differ from the spatial dynamics of **misgovernance**. Whereas 
