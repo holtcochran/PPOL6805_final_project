@@ -17,6 +17,7 @@ format:
     # https://quarto.org/docs/reference/formats/pdf.html
     link-citations: true
 prefer-html: true
+
 ---
 
 ## Introduction
@@ -29,8 +30,7 @@ Since the height of the COVID-19 lockdowns, society has reopened to in-person in
 
 **Hypothesis:** Traffic has increased in Washington, DC since the reopening of schools, businesses, and return to office policies, but not to the same level as before the pandemic. However, do to mass relocation of people during the pandemic, traffic patterns and trends have changed in Washington, DC since COVID-19. Traffic has to become more spread out across the city, as people have moved and traffic overall has decreased, leading to new patterns in areas that did not previously have bad traffic. City policies need adjusting to address these changes and alleviate new traffic patterns and trends.
 
-
-## Literature Review
+I anticipate that spatial autocorrelation is high before the pandemic, but drops off after the pandemic. This is due to more disperion in traffic, as people stay home more frequently and live farther outside of the city/in more residential areas possibly without large traffic patterns pre-pandemic.
 
 
 ## Methodology
@@ -39,7 +39,8 @@ To research changes in traffic patterns in Washington, DC, I am using data from 
 
 I first plot the traffic patterns on map to visually examine average traffic in DC by year. I then calculate Moran's I for the traffic of roads for each year of data to assess spatial autocorrelation of traffic. Finally, I run Monte Carlo simulations to assess the statistical significance of the Moran I values. Taken together, these methods show if spatial autocorrelation of traffic exists or has changed over time in the city, as new roads have developed traffic patterns as a result of trends caused by the COVID-19 pandemic. 
 
-```{r chunk1}
+```{r chunk1, echo = FALSE, message = FALSE, warning = FALSE}
+######## Load Packages ########
 library(tidyverse)
 library(dplyr)
 library(sf)
@@ -57,6 +58,9 @@ library(RColorBrewer)
 library(viridis)
 library(spatstat)
 library(htmltools)
+library(spatialreg)
+
+#rm(list=ls()) # remove objects
 
 
 ######## Import Data ######## 
@@ -65,8 +69,33 @@ dc_traffic_2019 <- st_read("Data/2019_Traffic_Volume.geojson")
 dc_traffic_2020 <- st_read("Data/2020_Traffic_Volume.geojson")
 dc_traffic_2021 <- st_read("Data/2021_Traffic_Volume.geojson")
 dc_traffic_2022 <- st_read("Data/2022_Traffic_Volume.geojson")
-```
 
+
+dc_traffic_2018 <- dc_traffic_2018 %>%
+  filter(!is.na(AADT)) %>%
+  filter(!st_is_empty(geometry)) %>%
+  st_zm(drop = TRUE, what = "ZM")
+
+dc_traffic_2019 <- dc_traffic_2019 %>%
+  filter(!is.na(AADT)) %>%
+  filter(!st_is_empty(geometry)) %>%
+  st_zm(drop = TRUE, what = "ZM")
+
+dc_traffic_2020 <- dc_traffic_2020 %>%
+  filter(!is.na(AADT)) %>%
+  filter(!st_is_empty(geometry)) %>%
+  st_zm(drop = TRUE, what = "ZM")
+
+dc_traffic_2021 <- dc_traffic_2021 %>%
+  filter(!is.na(AADT)) %>%
+  filter(!st_is_empty(geometry)) %>%
+  st_zm(drop = TRUE, what = "ZM")
+
+dc_traffic_2022 <- dc_traffic_2022 %>%
+  filter(!is.na(AADT)) %>%
+  filter(!st_is_empty(geometry)) %>%
+  st_zm(drop = TRUE, what = "ZM")
+```
 
 
 ## Exploratory Data Analysis (EDA)
@@ -169,29 +198,38 @@ dc_traffic_all_years <- bind_rows(
 )
 
 
-dc_traffic_all_years <- dc_traffic_all_years %>%
+# Filter the dataset to include only roads with AADT >= 50,000
+dc_traffic_all_years_filtered <- dc_traffic_all_years %>%
+  filter(AADT >= 50000)
+
+# Create bins for AADT with a bin width of 50,000
+dc_traffic_all_years_filtered <- dc_traffic_all_years_filtered %>%
   mutate(AADT_bin = cut(
     AADT,
-    breaks = seq(0, max(AADT, na.rm = TRUE), by = 40000),  # Standardized bin size of 30,000
+    breaks = seq(50000, max(AADT, na.rm = TRUE), by = 50000),  # Bins with a width of 50,000
     include.lowest = TRUE,
     right = FALSE,
     labels = paste0(
-      round(seq(0, max(AADT, na.rm = TRUE) - 40000, by = 40000) / 1000, 1), "k-", 
-      round(seq(40000, max(AADT, na.rm = TRUE), by = 40000) / 1000, 1), "k"
+      round(seq(50000, max(AADT, na.rm = TRUE) - 50000, by = 50000) / 1000, 1), "k-", 
+      round(seq(100000, max(AADT, na.rm = TRUE), by = 50000) / 1000, 1), "k"
     )
   ))
 
-# Plot AADT distribution by year with updated bin labels
-AADT_Histogram <- ggplot(dc_traffic_all_years, aes(x = factor(year), fill = AADT_bin)) +
+# Plot the histogram of AADT by year with the 50,000 bins
+AADT_Histogram <- ggplot(dc_traffic_all_years_filtered, aes(x = factor(year), fill = AADT_bin)) +
   geom_bar(position = "dodge", width = 0.8) +  # Standardize bar width
-  labs(title = "Annual Average Daily Traffic (AADT) by Year", x = "Year", y = "Frequency") +
+  labs(title = "Annual Average Daily Traffic (AADT) by Year",
+       x = "Year", y = "Frequency") +
   theme_minimal() +
   scale_fill_brewer(
     palette = "YlGnBu",
     name = "AADT Bins"
   ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 AADT_Histogram
+
+
 ```
 
 
@@ -280,6 +318,7 @@ moran_comparison <- data.frame(
   Year = 2018:2022,
   Moran_I = c(moran_i_2018, moran_i_2019, moran_i_2020, moran_i_2021, moran_i_2022)
 )
+print(moran_comparison)
 ```
 
 Figure 3 displays Moran's I comparison across years. There is peak Moran's I value of 0.84 in 2019, with a clear dip to 0.74 in 2021. 
@@ -296,15 +335,82 @@ morans_time
 
 ## Spatial Autoregressive (SAR) Model
 
-I then a spatial autoregressive (SAR) model to test the statistical significance of the changes in dispersion of the traffic in Washingon, DC. 
+I then a spatial autoregressive (SAR) model to test the statistical significance of spatial autocorrelation of the traffic in Washingon, DC. I run a spatial regression on the Average Annual Daily Traffic for pre-pandemic years (2018-2019) and post-pandemic (2021-2022). I exclude 2020 because this was when the COVID-19 pandemic spread across the world and lockdowns were implemented, so analyses could be skewed as people were forced to stay home. 
 
+Table 1 displays results from the pre-pandemic statistical model, while table 2 displays results from the post-pandemic model.
+
+
+#### Table 1. Pre-Pandemic Spatial Regression Model (2018-2019)
 ```{r chunk5, echo = FALSE}
+
+# Pre-pandemic (2018-2019) data
+pre_pandemic_data <- dc_traffic_all_years %>% filter(year %in% 2018:2019)
+
+pre_pandemic_data <- st_as_sf(pre_pandemic_data)
+
+pre_pandemic_data <- st_transform(pre_pandemic_data, crs = 6487)
+
+# Sample data for pre-pandemic (if needed)
+sampled_pre <- pre_pandemic_data %>%
+  group_by(year) %>%
+  slice_sample(n = 1000, replace = FALSE) %>%
+  ungroup()
+
+# Calculate centroids for pre-pandemic data
+coords_pre <- st_coordinates(st_centroid(sampled_pre))
+
+# Pre-pandemic k-nearest neighbors (adjust k as needed)
+nb_knn_pre <- knn2nb(knearneigh(coords_pre, k = 5))  # Adjust k if needed
+
+# Convert to spatial weights matrices (row standardization)
+listw_pre <- nb2listw(nb_knn_pre, style = "W")
+
+# Fit SAR model for pre-pandemic period
+sar_model_pre <- lagsarlm(AADT ~ year, data = sampled_pre, listw = listw_pre)
+
+# Summary of pre-pandemic model
+model_result_pre <- summary(sar_model_pre)
+print(model_result_pre)
 
 ```
 
+#### Table 2. Post-Pandemic Spatial Regression Model (2021-2022)
+```{r chunk6, echo = FALSE}
+
+# Post-pandemic (2020-2022) data
+post_pandemic_data <- dc_traffic_all_years %>% filter(year %in% 2021:2022)
+
+post_pandemic_data <- st_as_sf(post_pandemic_data)
+
+post_pandemic_data <- st_transform(post_pandemic_data, crs = 6487)
+
+# Sample data for post-pandemic (if needed)
+sampled_post <- post_pandemic_data %>%
+  group_by(year) %>%
+  slice_sample(n = 1000, replace = FALSE) %>%
+  ungroup()
+
+coords_post <- st_coordinates(st_centroid(sampled_post))
+
+# Post-pandemic k-nearest neighbors
+nb_knn_post <- knn2nb(knearneigh(coords_post, k = 5))  # Adjust k if needed
+
+listw_post <- nb2listw(nb_knn_post, style = "W")
+
+# Fit SAR model for post-pandemic period
+sar_model_post <- lagsarlm(AADT ~ year, data = sampled_post, listw = listw_post)
+
+# Summary of post-pandemic model
+# Summary of post-pandemic model
+model_result_post <- summary(sar_model_post)
+print(model_result_post)
+```
 
 
 ## Discussion
+
+The Rho value is also smaller in the post-pandemic period (0.39893) compared to the pre-pandemic period (0.46811). This indicates that, after the pandemic, traffic became more dispersed and less clustered spatially, suggesting a potential shift in traffic patterns—areas with high traffic were not as strongly influenced by neighboring areas with high traffic
+
 
 ## Conclusion
 
