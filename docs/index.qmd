@@ -251,6 +251,7 @@ Next I calculate the Moran's I for the Average Annual Daily Traffic for each roa
 ```{r chunk3, echo = FALSE}
 library(knitr)
 library(kableExtra)
+library(flextable)
 
 
 # filter for AADT > 100000
@@ -334,20 +335,31 @@ moran_comparison <- data.frame(
 )
 
 
-kable(moran_comparison, 
-      caption = "Comparison of Moran's I Across Years",
-      col.names = c("Year", "Moran's I"),
-      digits = 3,
-      align = "c") %>%  # Center-align columns
-  kable_styling(full_width = FALSE, 
-                bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
-  column_spec(2, width = "4cm")
+
+moran_comparison <- data.frame(
+  Year = as.character(2018:2022),
+  Moran_I = c(moran_i_2018, moran_i_2019, moran_i_2020, moran_i_2021, moran_i_2022)
+)
+
+ft <- flextable(moran_comparison) %>%
+  set_caption(caption = "Comparison of Moran's I Across Years") %>%
+  colformat_double(j = "Moran_I", digits = 3) %>%
+  autofit() %>%
+  theme_box()
+
+ft
 ```
 
 Figure 3 displays Moran's I comparison across years. There is peak Moran's I value of 0.84 in 2019, with a clear dip to 0.74 in 2021. 
 
 #### Figure 3. 
 ```{r chunk4, echo = FALSE}
+# Create a data frame to compare Moran's I across years
+moran_comparison <- data.frame(
+  Year = 2018:2022,
+  Moran_I = c(moran_i_2018, moran_i_2019, moran_i_2020, moran_i_2021, moran_i_2022)
+)
+
 morans_time <- ggplot(moran_comparison, aes(x = Year, y = Moran_I)) +
   geom_line() +
   geom_point() +
