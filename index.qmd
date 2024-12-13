@@ -38,7 +38,7 @@ I anticipate that spatial autocorrelation is high before the pandemic, but drops
 
 Much of the research into how COVID-19 changed traffic patterns has to do with how lockdown and remote policies affected the volume of drivers on the road. In a paper titled "Impacts of Remote Work on Vehicle Miles Traveled and Transit Ridership in the USA" by Yunhan Zheng, Shenhao Wang, Lun Liu, Jim Aloisi & Jinhua Zhao, the research focuses on the the drop in drivers on roads generally. The paper finds that there was a "2.26% drop in metropolitan statistical area-level transit ridership" in 2022 compared with 2019. They conclude that there a fewer drivers on the roads in general, which changes routes that people who do drive take to get to their destinations (Zheng et. al, 2022)
 
-In a slightly different research topic, researchers at the National Library of Medicine study how the changes in traffic patterns from COVID-19 have affected the number of vehicles on the road, which in turn affects the number of auto accidents. In "An Overview of the Impact of COVID-19 on Road Traffic Safety and Travel Behavior" by Ebrahim Shaik and Samsuddin Ahmed, the authors find that the number of drivers decreased since the start of the pandemic but there was a statistically significant increase in the number of serious accidents. They conclude that this is due to a number of factors listed in the paper, importantly among them is "travel objective" or destination and time spent driving of drivers on the roads (Shaik and Ahmed, 2022). This is possibly do to changes in remote policies of school and work, which are the same hypothesized proponents of traffic changes in my research. This is an interesting compliment to my research and hypothesis, which states that COVID-19 changed traffic behavior for people driving.
+In a slightly different research topic, researchers at the National Library of Medicine study how the changes in traffic patterns from COVID-19 have affected the number of vehicles on the road, which in turn affects the number of auto accidents. In "An Overview of the Impact of COVID-19 on Road Traffic Safety and Travel Behavior" by Ebrahim Shaik and Samsuddin Ahmed, the authors find that the number of drivers decreased since the start of the pandemic but there was a statistically significant increase in the number of serious accidents. They conclude that this is due to a number of factors listed in the paper, importantly among them is "travel objective" or destination and time spent driving of drivers on the roads (Shaik & Ahmed, 2022). This is possibly do to changes in remote policies of school and work, which are the same hypothesized proponents of traffic changes in my research. This is an interesting compliment to my research and hypothesis, which states that COVID-19 changed traffic behavior for people driving.
 
 
 ## Methodology
@@ -70,8 +70,10 @@ library(spatstat)
 library(htmltools)
 library(spatialreg)
 
-#rm(list=ls()) # remove objects
+rm(list=ls()) # remove objects
 
+# set the working directory
+setwd("/Users/holtcochran/PPOL6805_final_project")
 
 ######## Import Data ######## 
 dc_traffic_2018 <- st_read("Data/2018_Traffic_Volume.geojson", quiet=TRUE)
@@ -247,6 +249,9 @@ AADT_Histogram
 Next I calculate the Moran's I for the Average Annual Daily Traffic for each road with data for each year from 2018 - 2022. Moran's I statistics are used to quantify spatial correlation and assess clustering of data. I use Moran's I to assess if traffic in DC is spatially auto correlated, and the strength of the clustering of traffic on roads. To reduce computational complexity, I filter to only assess AADT > 50,000 - this only includes roads that have average traffic of more than 50,000 drivers a day. This focuses the analysis on roads with large quantities of drivers and traffic, which is the focus of this research. 
 
 ```{r chunk3, echo = FALSE}
+library(knitr)
+library(kableExtra)
+
 
 # filter for AADT > 100000
 dc_traffic_2018_50k <- dc_traffic_2018_filtered %>% filter(AADT > 50000)
@@ -327,7 +332,16 @@ moran_comparison <- data.frame(
   Year = 2018:2022,
   Moran_I = c(moran_i_2018, moran_i_2019, moran_i_2020, moran_i_2021, moran_i_2022)
 )
-print(moran_comparison)
+
+
+kable(moran_comparison, 
+      caption = "Comparison of Moran's I Across Years",
+      col.names = c("Year", "Moran's I"),
+      digits = 3,
+      align = "c") %>%  # Center-align columns
+  kable_styling(full_width = FALSE, 
+                bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+  column_spec(2, width = "4cm")
 ```
 
 Figure 3 displays Moran's I comparison across years. There is peak Moran's I value of 0.84 in 2019, with a clear dip to 0.74 in 2021. 
@@ -453,13 +467,13 @@ stargazer(sar_model_post, type = "text",
 
 ## Discussion
 
-The peak Moran's I values in 2019 followed by a dip in 2021 suggest that spatial autocorrelation of traffic in Washington, DC decreases during and after the COVID-19 pandemic. The pre-pandemic values signify a high spatial autocorrelation, meaning that roads with similar traffic volumes (high or low AADT) were strongly clustered. This could indicate consistent spatial patterns, where certain areas had consistently high or low traffic volumes possibly driven by predictable commuting behavior, economic activity, and infrastructure. 
+The peak Moran's I value in 2019 followed by a dip in 2021 suggests that spatial autocorrelation of traffic in Washington, DC decreases during and after the COVID-19 pandemic. The pre-pandemic values signify a high spatial autocorrelation, meaning that roads with similar traffic volumes (high or low AADT) were strongly clustered. This could indicate consistent spatial patterns, where certain areas had consistently high or low traffic volumes possibly driven by predictable commuting behavior, economic activity, and infrastructure. 
 
 The downward slope of Moran I values beginning in 2020 and continuing in 2021 display a decrease in spatial autocorrelation, suggesting that the clustering of roads with similar traffic volumes weakened. This is possibly due to changes in commuting behaviors as a result of COVID-19 remote or hybrid school and work policies, as people stay home or commute into areas of DC less frequently. Traffic patterns became less predictable and more spatially dispersed; roads in previously high-traffic areas may have experienced significant drops in traffic, while others (e.g., residential or suburban areas) saw increases.
 
 The Rho value is also smaller in the post-pandemic period (0.4279) compared to the pre-pandemic period (0.5426). These values signify that post-pandemic traffic is about 25% less related to geospatial autocorrelation than pre-pandemic traffic. We can infer that in the years after the pandemic, traffic became more dispersed and less clustered spatially, suggesting a potential shift in traffic patterns—areas with high traffic were not as strongly influenced by neighboring areas with high traffic. Geospatial independence is more prominent in the post-pandemic traffic data, signifying that traffic is more spread out across the city. 
 
-Though this is not a direct causal statistical model, the methods used in this spatial autoregressive model are similar to methods of Granger Causality, which assess predictive causality in time-series data (*citation*). Examining traffic data at a yearly level largely removes bias from data in the form of idiosyncratic events, such as a disruption in DC Metro service influencing the amount of traffic on a particular day. Taken with the timing of the COVID-19 pandemic as an event that separates the SAR models, these methods are close to those that allow causal or predictive inferences under Granger Causality. 
+Though this is not a direct causal statistical model, the methods used in this spatial autoregressive model are similar to methods of Granger Causality, which assess predictive causality in time-series data (Clarke & Granato, 2005) . Examining traffic data at a yearly level largely removes bias from data in the form of idiosyncratic events, such as a disruption in DC Metro service influencing the amount of traffic on a particular day. Taken with the timing of the COVID-19 pandemic as an event that separates the SAR models, these methods are close to those that allow causal or predictive inferences under Granger Causality. 
 
 
 ## Conclusion
@@ -485,5 +499,7 @@ The implications of these new traffic patterns and volume are relevant for city 
 > Shaik, Ebrahim, and Samsuddin Ahmed. “An Overview of the Impact of COVID-19 on Road Traffic Safety and Travel Behavior.” Transportation Engineering, National Library of Medicine, Sept. 2022, pmc.ncbi.nlm.nih.gov/articles/PMC9123801/. 
 
 > District of Columbia Government. (2024). Traffic Volume. Open Data DC. https://opendata.dc.gov/datasets/DCGIS::2022-traffic-volume/about?uiVersion=content-views
+
+> Clarke, H. D., & Granato, J. (2005). Granger-causality. Granger-Causality - An Overview. https://www.sciencedirect.com/topics/social-sciences/granger-causality 
 
 
