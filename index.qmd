@@ -1,10 +1,10 @@
 ---
 title: "Changing Traffic Patterns in Washington, DC: Fallout from the COVID-19 Pandemic"
-subtitle: "PPOL 6805: GIS for Spatial Data Science Final Project"
+subtitle: "PPOL 6805: GIS for Spatial Data Science - Final Project"
 authors:
   - name: Holt Cochran
     email: whc17@georgetown.edu
-    affiliation: Georgetown University
+    school: Georgetown University
     corresponding: true
 df-print: kable
 bibliography: GIS_Manuscript.bib
@@ -22,20 +22,28 @@ prefer-html: true
 
 ## Introduction
 
-Washington, DC is frequently listed as having some of worst traffic in the United States *(1)*. There are several factors that contribute to the large amount of traffic in the District: the large and dense population within the city limits packs people into a small land area; bottlenecks exist in certain areas of the city, such as the bridges crossing the Potomac River; drivers commuting from the sprawling suburban areas in Virginia and Maryland are funneled into tight corridors of the city; peak hours of the day, when people commute to and from work, escalate the traffic. Taken together, the District of Columbia experiences high rates of traffic, however there is no one single factor that contributes to the large build-up of drivers within the city *(2)* - rather, it is a confluence of characteristics of the city and drivers that contribute to vehicle backups.
+Washington, DC is frequently listed as having some of worst traffic in the United States (Inrix, 2024). There are several factors that contribute to the large amount of traffic in the District: the large and dense population within the city limits packs people into a small land area; bottlenecks exist in certain areas of the city, such as the bridges crossing the Potomac River; drivers commuting from the sprawling suburban areas in Virginia and Maryland are funneled into tight corridors of the city; peak hours of the day, when people commute to and from work, escalate the traffic. Taken together, the District of Columbia experiences high rates of traffic, however there is no one single factor that contributes to the large build-up of drivers within the city - rather, it is a confluence of characteristics of the city and drivers that contribute to vehicle backups (Marks & Harrison, 2023).
 
-When COVID-19 began spreading rapidly across the United States in March 2020, businesses, schools, and establishments closed to limit interactions and spread of the virus *(3)*. People stayed home to shelter, and many functions of society were taken online in a remote setting *(4)*. This caused an almost immediate stop in the number of people commuting into cities, including Washington, DC, for work, school, or other functions. The ability to work, learn, and exist in a remote capacity removed reasons for continuing to live in the same areas as before the pandemic - research shows that during the pandemic, large swaths of the US population relocated or moved to other areas *(5)*. 
+When COVID-19 began spreading rapidly across the United States in March 2020, businesses, schools, and establishments closed to limit interactions and spread of the virus (Barrot et. al, 2024). People stayed home to shelter, and many functions of society were taken online in a remote setting. This caused an almost immediate stop in the number of people commuting into cities, including Washington, DC, for work, school, or other functions. The ability to work, learn, and exist in a remote capacity removed reasons for continuing to live in the same areas as before the pandemic - research shows that during the pandemic, large swaths of the US population relocated or moved to other areas (Frost, 2023).
 
 Since the height of the COVID-19 lockdowns, society has reopened to in-person interactions, but remote functions of work, school, doctors visits, etc. still exist. My research for this project centers on how changes in human behavior during the COVID-19 pandemic have affected traffic patterns in Washington, DC and what city policymakers should do to address changes in traffic trends.
 
-**Hypothesis:** Traffic has increased in Washington, DC since the reopening of schools, businesses, and return to office policies, but not to the same level as before the pandemic. However, do to mass relocation of people during the pandemic, traffic patterns and trends have changed in Washington, DC since COVID-19. Traffic has to become more spread out across the city, as people have moved and traffic overall has decreased, leading to new patterns in areas that did not previously have bad traffic. City policies need adjusting to address these changes and alleviate new traffic patterns and trends.
+### Hypothesis
+Traffic has increased in Washington, DC since the reopening of schools, businesses, and return to office policies, but not to the same level as before the pandemic. However, do to mass relocation of people during the pandemic, traffic patterns and trends have changed in Washington, DC since COVID-19. Traffic has to become more spread out across the city, as people have moved and traffic overall has decreased, leading to new patterns in areas that did not previously have bad traffic. City policies need adjusting to address these changes and alleviate new traffic patterns and trends.
 
 I anticipate that spatial autocorrelation is high before the pandemic, but drops off after the pandemic. This is due to more disperion in traffic, as people stay home more frequently and live farther outside of the city/in more residential areas possibly without large traffic patterns pre-pandemic.
 
 
+## Literature Review
+
+Much of the research into how COVID-19 changed traffic patterns has to do with how lockdown and remote policies affected the volume of drivers on the road. In a paper titled "Impacts of Remote Work on Vehicle Miles Traveled and Transit Ridership in the USA" by Yunhan Zheng, Shenhao Wang, Lun Liu, Jim Aloisi & Jinhua Zhao, the research focuses on the the drop in drivers on roads generally. The paper finds that there was a "2.26% drop in metropolitan statistical area-level transit ridership" in 2022 compared with 2019. They conclude that there a fewer drivers on the roads in general, which changes routes that people who do drive take to get to their destinations (Zheng et. al, 2022)
+
+In a slightly different research topic, researchers at the National Library of Medicine study how the changes in traffic patterns from COVID-19 have affected the number of vehicles on the road, which in turn affects the number of auto accidents. In "An Overview of the Impact of COVID-19 on Road Traffic Safety and Travel Behavior" by Ebrahim Shaik and Samsuddin Ahmed, the authors find that the number of drivers decreased since the start of the pandemic but there was a statistically significant increase in the number of serious accidents. They conclude that this is due to a number of factors listed in the paper, importantly among them is "travel objective" or destination and time spent driving of drivers on the roads (Shaik and Ahmed, 2022). This is possibly do to changes in remote policies of school and work, which are the same hypothesized proponents of traffic changes in my research. This is an interesting compliment to my research and hypothesis, which states that COVID-19 changed traffic behavior for people driving.
+
+
 ## Methodology
 
-To research changes in traffic patterns in Washington, DC, I am using data from District of Columbia Department of Transportation (DDOT) from 2018 - 2022 *(6)*. The data tracks traffic at a yearly level - these are reported in a statistic called Annual Average Daily Traffic (AADT), which is the average daily traffic a road experiences in a year. The unit of analysis are roads in the district, identified per road by a Route ID. Using data over time, I can examine traffic data in the two years before and after the height of the pandemic in 2020. Comparing traffic patterns over time will allow me to examine changes in trends, patterns, and quantities. 
+To research changes in traffic patterns in Washington, DC, I am using data from District of Columbia Department of Transportation (DDOT) from 2018 - 2022 (District of Columbia Government, 2024). The data tracks traffic at a yearly level - these are reported in a statistic called Annual Average Daily Traffic (AADT), which is the average daily traffic a road experiences in a year. The unit of analysis are roads in the district, identified per road by a Route ID. Using data over time, I can examine traffic data in the two years before and after the height of the pandemic in 2020. Comparing traffic patterns over time will allow me to examine changes in trends, patterns, and quantities.  
 
 I first plot the traffic patterns on map to visually examine average traffic in DC by year. I then calculate Moran's I for the traffic of roads for each year of data to assess spatial autocorrelation of traffic. Finally, I run Monte Carlo simulations to assess the statistical significance of the Moran I values. Taken together, these methods show if spatial autocorrelation of traffic exists or has changed over time in the city, as new roads have developed traffic patterns as a result of trends caused by the COVID-19 pandemic. 
 
@@ -43,6 +51,8 @@ I first plot the traffic patterns on map to visually examine average traffic in 
 ######## Load Packages ########
 library(tidyverse)
 library(dplyr)
+library(modelsummary)
+library(stargazer)
 library(sf)
 library(spdep)
 library(gganimate)
@@ -64,11 +74,11 @@ library(spatialreg)
 
 
 ######## Import Data ######## 
-dc_traffic_2018 <- st_read("Data/2018_Traffic_Volume.geojson")
-dc_traffic_2019 <- st_read("Data/2019_Traffic_Volume.geojson")
-dc_traffic_2020 <- st_read("Data/2020_Traffic_Volume.geojson")
-dc_traffic_2021 <- st_read("Data/2021_Traffic_Volume.geojson")
-dc_traffic_2022 <- st_read("Data/2022_Traffic_Volume.geojson")
+dc_traffic_2018 <- st_read("Data/2018_Traffic_Volume.geojson", quiet=TRUE)
+dc_traffic_2019 <- st_read("Data/2019_Traffic_Volume.geojson", quiet=TRUE)
+dc_traffic_2020 <- st_read("Data/2020_Traffic_Volume.geojson", quiet=TRUE)
+dc_traffic_2021 <- st_read("Data/2021_Traffic_Volume.geojson", quiet=TRUE)
+dc_traffic_2022 <- st_read("Data/2022_Traffic_Volume.geojson", quiet=TRUE)
 
 
 dc_traffic_2018 <- dc_traffic_2018 %>%
@@ -117,8 +127,7 @@ for (year in 2018:2022) {
   # Remove Z-dimension and transform to CRS 4326
   dc_traffic <- dc_traffic %>%
     mutate(geometry = st_zm(geometry)) %>%
-    st_transform(crs = 4326) %>%
-    mutate(AADT = sqrt(AADT)) 
+    st_transform(crs = 4326)
   
   dc_traffic_list[[year]] <- dc_traffic
 }
@@ -163,7 +172,7 @@ leaflet_map <- leaflet_map %>%
     position = "bottomleft",   # Position of the legend
     pal = color_scale_custom,   # Color scale to use
     values = range(dc_traffic$AADT, na.rm = TRUE),  # AADT range for the legend
-    title = "AADT (hundreds)",
+    title = "AADT",
     opacity = 1
   )
 
@@ -335,20 +344,25 @@ morans_time
 
 ## Spatial Autoregressive (SAR) Model
 
-I then a spatial autoregressive (SAR) model to test the statistical significance of spatial autocorrelation of the traffic in Washingon, DC. I run a spatial regression on the Average Annual Daily Traffic for pre-pandemic years (2018-2019) and post-pandemic (2021-2022). I exclude 2020 because this was when the COVID-19 pandemic spread across the world and lockdowns were implemented, so analyses could be skewed as people were forced to stay home. 
+I then create a spatial autoregressive (SAR) model to test the statistical significance of spatial autocorrelation of the traffic in Washingon, DC. I run a spatial regression on the Average Annual Daily Traffic for pre-pandemic years (2018-2019) and post-pandemic years (2021-2022). I exclude 2020 because this was when the COVID-19 pandemic spread across the world and lockdowns were implemented, so analyses could be skewed as people were forced to stay home. 
 
 Table 1 displays results from the pre-pandemic statistical model, while table 2 displays results from the post-pandemic model.
 
 
-#### Table 1. Pre-Pandemic Spatial Regression Model (2018-2019)
-```{r chunk5, echo = FALSE}
+#### Table 1. Pre-Pandemic SAR Model (2018-2019)
+```{r chunk5, echo = FALSE, warning=FALSE}
+set.seed(520)
 
 # Pre-pandemic (2018-2019) data
 pre_pandemic_data <- dc_traffic_all_years %>% filter(year %in% 2018:2019)
-
 pre_pandemic_data <- st_as_sf(pre_pandemic_data)
-
 pre_pandemic_data <- st_transform(pre_pandemic_data, crs = 6487)
+
+# Sample data for pre-pandemic (if needed)
+sampled_pre <- pre_pandemic_data %>%
+  group_by(year) %>%
+  slice_sample(n = 1000, replace = FALSE) %>%
+  ungroup()
 
 # Sample data for pre-pandemic (if needed)
 sampled_pre <- pre_pandemic_data %>%
@@ -370,12 +384,27 @@ sar_model_pre <- lagsarlm(AADT ~ year, data = sampled_pre, listw = listw_pre)
 
 # Summary of pre-pandemic model
 model_result_pre <- summary(sar_model_pre)
-print(model_result_pre)
 
+# Extract the Rho value and its details
+rho_value <- sar_model_pre$rho
+rho_se <- sar_model_pre$rho.se
+
+# Create a custom stargazer output
+stargazer(sar_model_pre, type = "text", 
+          title = "Spatial Autoregressive Model: Pre-Pandemic Traffic (2018 - 2019)",
+          single.row = TRUE,
+          ci = TRUE,
+          add.lines = list(
+            c("Rho", round(rho_value, 4)),
+            c("Rho Std. Error", round(rho_se, 4))
+          ))
 ```
 
-#### Table 2. Post-Pandemic Spatial Regression Model (2021-2022)
+
+
+#### Table 2. Post-Pandemic SAR Model (2021-2022)
 ```{r chunk6, echo = FALSE}
+set.seed(300)
 
 # Post-pandemic (2020-2022) data
 post_pandemic_data <- dc_traffic_all_years %>% filter(year %in% 2021:2022)
@@ -403,14 +432,58 @@ sar_model_post <- lagsarlm(AADT ~ year, data = sampled_post, listw = listw_post)
 # Summary of post-pandemic model
 # Summary of post-pandemic model
 model_result_post <- summary(sar_model_post)
-print(model_result_post)
+
+# Create a detailed model summary table
+
+# Extract the Rho value and its details
+rho_value <- sar_model_post$rho
+rho_se <- sar_model_post$rho.se
+
+# Create a custom stargazer output
+stargazer(sar_model_post, type = "text", 
+          title = "Spatial Autoregressive Model: Post-Pandemic Traffic (2021 - 2022)",
+          single.row = TRUE,
+          ci = TRUE,
+          add.lines = list(
+            c("Rho", round(rho_value, 4)),
+            c("Rho Std. Error", round(rho_se, 4))
+          ))
 ```
 
 
 ## Discussion
 
-The Rho value is also smaller in the post-pandemic period (0.39893) compared to the pre-pandemic period (0.46811). This indicates that, after the pandemic, traffic became more dispersed and less clustered spatially, suggesting a potential shift in traffic patterns—areas with high traffic were not as strongly influenced by neighboring areas with high traffic
+The peak Moran's I values in 2019 followed by a dip in 2021 suggest that spatial autocorrelation of traffic in Washington, DC decreases during and after the COVID-19 pandemic. The pre-pandemic values signify a high spatial autocorrelation, meaning that roads with similar traffic volumes (high or low AADT) were strongly clustered. This could indicate consistent spatial patterns, where certain areas had consistently high or low traffic volumes possibly driven by predictable commuting behavior, economic activity, and infrastructure. 
+
+The downward slope of Moran I values beginning in 2020 and continuing in 2021 display a decrease in spatial autocorrelation, suggesting that the clustering of roads with similar traffic volumes weakened. This is possibly due to changes in commuting behaviors as a result of COVID-19 remote or hybrid school and work policies, as people stay home or commute into areas of DC less frequently. Traffic patterns became less predictable and more spatially dispersed; roads in previously high-traffic areas may have experienced significant drops in traffic, while others (e.g., residential or suburban areas) saw increases.
+
+The Rho value is also smaller in the post-pandemic period (0.4279) compared to the pre-pandemic period (0.5426). These values signify that post-pandemic traffic is about 25% less related to geospatial autocorrelation than pre-pandemic traffic. We can infer that in the years after the pandemic, traffic became more dispersed and less clustered spatially, suggesting a potential shift in traffic patterns—areas with high traffic were not as strongly influenced by neighboring areas with high traffic. Geospatial independence is more prominent in the post-pandemic traffic data, signifying that traffic is more spread out across the city. 
+
+Though this is not a direct causal statistical model, the methods used in this spatial autoregressive model are similar to methods of Granger Causality, which assess predictive causality in time-series data (*citation*). Examining traffic data at a yearly level largely removes bias from data in the form of idiosyncratic events, such as a disruption in DC Metro service influencing the amount of traffic on a particular day. Taken with the timing of the COVID-19 pandemic as an event that separates the SAR models, these methods are close to those that allow causal or predictive inferences under Granger Causality. 
 
 
 ## Conclusion
+
+Using Moran's I for initial analysis and a Spatial Autoregressive Model for validation, the there is compelling and statistically significant evidence to suggest that traffic in Washington, DC is not as geospatially autocorrelated as before the COVID-19 pandemic. 
+These findings suggest suggest that traffic patterns in Washington, DC have become more spread out since the COVID-19 pandemic in comparison to the years before 2020. Thee result of this is changed traffic volume in roads in the city that did not previously have traffic.
+
+The implications of these new traffic patterns and volume are relevant for city policymakers as they address issues that dense traffic patterns present. This research serves as the first step in addressing a changed city and traffic behavior of its residents.
+
+
+## References
+
+> Inrix. (2024). Global Traffic Scorecard. https://inrix.com/scorecard-2022/  
+
+> Marks & Harrison. (2023, September 14). Why is there so much traffic congestion in the Washington, D.C., Metro Area. https://www.marksandharrison.com/blog/traffic-congestion-in-washington-dc/#:~:text=The%20metro%20area’s%20population%20has,themselves%20safe%20while%20in%20transit. 
+
+> Barrot et. al. (2024, February 9). Causal effects of closing businesses in a pandemic. Journal of Financial Economics. https://www.sciencedirect.com/science/article/pii/S0304405X24000175 
+
+> Frost, R. (2023, March). Did More People Move During the Pandemic?. Harvard Joint Center for Housing Studies. https://www.jchs.harvard.edu/sites/default/files/research/files/harvard_jchs_pandemic_mobility_frost_2023.pdf 
+
+> Zheng, Y., Wang, S., Liu, L. et al. "Impacts of remote work on vehicle miles traveled and transit ridership in the USA." Nat Cities 1, 346–358 (2024). https://doi.org/10.1038/s44284-024-00057-1
+
+> Shaik, Ebrahim, and Samsuddin Ahmed. “An Overview of the Impact of COVID-19 on Road Traffic Safety and Travel Behavior.” Transportation Engineering, National Library of Medicine, Sept. 2022, pmc.ncbi.nlm.nih.gov/articles/PMC9123801/. 
+
+> District of Columbia Government. (2024). Traffic Volume. Open Data DC. https://opendata.dc.gov/datasets/DCGIS::2022-traffic-volume/about?uiVersion=content-views
+
 
